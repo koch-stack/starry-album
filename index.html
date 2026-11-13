@@ -1,0 +1,2419 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>Звёздный альбом ✨</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    :root {
+      --bg-void: #040611;
+      --bg-cosmos: #0B1026;
+      --bg-horizon: #1A1136;
+      --star-cold: #E8F0FF;
+      --star-warm: #FFF6D6;
+      --star-gold: #FFD166;
+      --accent-rose: #FF5E8E;
+      --accent-rose-glow: rgba(255, 94, 142, 0.55);
+      --glass-bg: rgba(15, 20, 45, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --modal-backdrop: rgba(4, 6, 17, 0.88);
+      --text-primary: #FDFBF7;
+      --text-secondary: #B8C0E0;
+      --text-muted: #7A84A8;
+      --film-amber: rgba(255, 170, 90, 0.28);
+
+      --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --safe-top: max(16px, env(safe-area-inset-top, 16px));
+      --safe-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      position: fixed;
+      inset: 0;
+      background-color: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+      color-scheme: dark;
+    }
+
+    button {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    /* ======================================================================
+       SCREEN 1: PRELOADER
+       ====================================================================== */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(88, 56, 168, 0.18), transparent 62%),
+        var(--bg-void);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      opacity: 1;
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+      will-change: opacity;
+    }
+
+    #preloader.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .preloader-star-wrap {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    .preloader-aura {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 209, 102, 0.34) 0%, rgba(255, 94, 142, 0.12) 45%, transparent 72%);
+      animation: preloaderPulse 2.4s ease-in-out infinite;
+    }
+
+    .preloader-star-svg {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      filter: drop-shadow(0 0 14px rgba(255, 246, 214, 0.75));
+      animation: preloaderFloat 3.2s ease-in-out infinite;
+    }
+
+    .preloader-greeting {
+      margin: 0 0 6px;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--star-gold);
+      opacity: 0.85;
+    }
+
+    .preloader-greeting:empty {
+      display: none;
+    }
+
+    .preloader-title {
+      margin: 0 0 22px;
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      line-height: 1.25;
+      color: var(--text-primary);
+    }
+
+    .preloader-progress-track {
+      width: 200px;
+      height: 3px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.12);
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .preloader-progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--star-warm), var(--star-gold), var(--accent-rose));
+      box-shadow: 0 0 10px rgba(255, 209, 102, 0.65);
+      transition: width 0.14s linear;
+    }
+
+    .preloader-percent {
+      margin: 0;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.06em;
+    }
+
+    @keyframes preloaderPulse {
+      0%, 100% {
+        transform: scale(0.92);
+        opacity: 0.65;
+      }
+      50% {
+        transform: scale(1.16);
+        opacity: 1;
+      }
+    }
+
+    @keyframes preloaderFloat {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-4px) scale(1.06);
+      }
+    }
+
+    /* ======================================================================
+       SCREEN 2: STARRY SKY
+       ====================================================================== */
+    #sky-screen {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--bg-void) 0%, var(--bg-cosmos) 54%, var(--bg-horizon) 100%);
+    }
+
+    #sky-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .sky-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    @media (min-width: 501px) {
+      .sky-stage {
+        max-width: 460px;
+        height: 100dvh;
+        margin: 0 auto;
+      }
+    }
+
+    #stars-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: auto;
+    }
+
+    /* Top HUD */
+    #sky-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 5;
+      padding: var(--safe-top) 20px 0;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .sky-hint {
+      margin: 0;
+      max-width: 340px;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 400;
+      line-height: 1.4;
+      color: var(--text-secondary);
+      opacity: 0.8;
+      text-shadow: 0 2px 12px rgba(4, 6, 17, 0.9);
+      transition: opacity 0.6s ease;
+    }
+
+    #sky-header.has-progress .sky-hint {
+      opacity: 0.55;
+    }
+
+    /* Bottom HUD */
+    #sky-footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 5;
+      padding: 0 16px var(--safe-bottom);
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .progress-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: var(--glass-bg);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.14),
+        0 10px 30px rgba(4, 6, 17, 0.55);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+      transition: border-color 0.5s ease, box-shadow 0.5s ease, background 0.5s ease;
+      pointer-events: auto;
+    }
+
+    .progress-pill-icon {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      color: var(--star-gold);
+      transition: color 0.4s ease, transform 0.4s ease;
+    }
+
+    .progress-pill.is-complete {
+      border-color: rgba(255, 94, 142, 0.65);
+      background: rgba(28, 18, 48, 0.84);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 0 24px rgba(255, 94, 142, 0.32),
+        0 10px 28px rgba(4, 6, 17, 0.65);
+    }
+
+    .progress-pill.is-complete .progress-pill-icon {
+      color: var(--accent-rose);
+      transform: scale(1.12);
+    }
+
+    /* Interactive Photo Stars */
+    .star-node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      min-width: 48px;
+      min-height: 48px;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      z-index: 3;
+      will-change: transform;
+    }
+
+    .star-node:focus-visible {
+      outline: 2px solid var(--star-gold);
+      outline-offset: 2px;
+      border-radius: 50%;
+    }
+
+    .star-halo {
+      position: absolute;
+      width: calc(28px * var(--star-scale, 1));
+      height: calc(28px * var(--star-scale, 1));
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 246, 214, 0.42) 0%, rgba(255, 246, 214, 0.12) 48%, transparent 74%);
+      animation: starPulse 3.1s ease-in-out infinite;
+      animation-delay: var(--twinkle-delay, 0s);
+      transition: transform 0.45s ease, border-color 0.45s ease, background 0.45s ease;
+      pointer-events: none;
+    }
+
+    .star-core {
+      position: relative;
+      width: calc(15px * var(--star-scale, 1));
+      height: calc(15px * var(--star-scale, 1));
+      color: var(--star-warm);
+      filter: drop-shadow(0 0 6px rgba(255, 246, 214, 0.92));
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.45s ease, filter 0.45s ease;
+      pointer-events: none;
+    }
+
+    .star-node:active .star-core {
+      transform: scale(0.8);
+    }
+
+    .star-badge {
+      position: absolute;
+      right: 9px;
+      bottom: 9px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--star-gold);
+      color: var(--bg-void);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 8px rgba(255, 209, 102, 0.85);
+      opacity: 0;
+      transform: scale(0.3);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+
+    .star-badge svg {
+      width: 8px;
+      height: 8px;
+      display: block;
+    }
+
+    .star-node.is-visited .star-halo {
+      width: calc(32px * var(--star-scale, 1));
+      height: calc(32px * var(--star-scale, 1));
+      border: 1px solid rgba(255, 209, 102, 0.48);
+      background: radial-gradient(circle, rgba(255, 209, 102, 0.28) 0%, rgba(255, 209, 102, 0.06) 56%, transparent 76%);
+      box-shadow: 0 0 14px rgba(255, 209, 102, 0.25);
+      animation: none;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .star-node.is-visited .star-core {
+      color: var(--star-gold);
+      filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.95));
+    }
+
+    .star-node.is-visited .star-badge {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    @keyframes starPulse {
+      0%, 100% {
+        transform: scale(0.86);
+        opacity: 0.55;
+      }
+      50% {
+        transform: scale(1.22);
+        opacity: 1;
+      }
+    }
+
+    /* Final Confession Star */
+    #final-star-btn {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      min-width: 56px;
+      min-height: 56px;
+      width: 56px;
+      height: 56px;
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      z-index: 4;
+      will-change: transform;
+    }
+
+    #final-star-btn:focus-visible {
+      outline: 2px solid var(--accent-rose);
+      outline-offset: 4px;
+      border-radius: 50%;
+    }
+
+    .final-ring {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .final-ring-outer {
+      width: 56px;
+      height: 56px;
+      border: 1px solid rgba(255, 94, 142, 0.35);
+      background: radial-gradient(circle, rgba(255, 94, 142, 0.22) 0%, rgba(255, 94, 142, 0.04) 55%, transparent 75%);
+      animation: finalStarPulse 2.8s ease-out infinite;
+    }
+
+    .final-ring-inner {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255, 209, 102, 0.45);
+      background: radial-gradient(circle, rgba(255, 94, 142, 0.32) 0%, transparent 72%);
+      animation: finalStarPulse 2.8s ease-out 1.4s infinite;
+    }
+
+    .final-star-core {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      filter: drop-shadow(0 0 12px var(--accent-rose-glow));
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+      pointer-events: none;
+    }
+
+    #final-star-btn:active .final-star-core {
+      transform: scale(0.86);
+    }
+
+    .final-star-label {
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(15, 20, 45, 0.8);
+      border: 1px solid rgba(255, 94, 142, 0.34);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--text-secondary);
+      box-shadow: 0 6px 18px rgba(4, 6, 17, 0.55);
+      transition: all 0.5s ease;
+      pointer-events: none;
+    }
+
+    #final-star-btn.is-unlocked .final-ring-outer {
+      width: 68px;
+      height: 68px;
+      border-color: rgba(255, 94, 142, 0.7);
+      background: radial-gradient(circle, rgba(255, 94, 142, 0.38) 0%, rgba(255, 209, 102, 0.14) 55%, transparent 78%);
+      animation-duration: 2.1s;
+    }
+
+    #final-star-btn.is-unlocked .final-ring-inner {
+      width: 48px;
+      height: 48px;
+      border-color: rgba(255, 209, 102, 0.75);
+      animation-duration: 2.1s;
+      animation-delay: 1.05s;
+    }
+
+    #final-star-btn.is-unlocked .final-star-core {
+      transform: scale(1.12);
+      filter: drop-shadow(0 0 20px rgba(255, 94, 142, 0.9)) drop-shadow(0 0 10px rgba(255, 209, 102, 0.65));
+    }
+
+    #final-star-btn.is-unlocked .final-star-label {
+      color: var(--text-primary);
+      border-color: rgba(255, 94, 142, 0.78);
+      background: linear-gradient(135deg, rgba(255, 94, 142, 0.38), rgba(255, 209, 102, 0.25), rgba(15, 20, 45, 0.88));
+      background-size: 200% 200%;
+      box-shadow: 0 0 20px rgba(255, 94, 142, 0.42), 0 6px 18px rgba(4, 6, 17, 0.6);
+      animation: labelFloat 2.4s ease-in-out infinite, labelShimmer 3.2s linear infinite;
+    }
+
+    @keyframes finalStarPulse {
+      0% {
+        transform: scale(0.76);
+        opacity: 0.9;
+      }
+      70% {
+        transform: scale(1.36);
+        opacity: 0.15;
+      }
+      100% {
+        transform: scale(1.48);
+        opacity: 0;
+      }
+    }
+
+    @keyframes labelFloat {
+      0%, 100% {
+        transform: translateX(-50%) translateY(0);
+      }
+      50% {
+        transform: translateX(-50%) translateY(-3px);
+      }
+    }
+
+    @keyframes labelShimmer {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 200% 50%;
+      }
+    }
+
+    /* ======================================================================
+       SCREEN 3: PHOTO MODAL (DARKROOM FILM DEVELOPMENT)
+       ====================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(20px, var(--safe-top)) 16px max(20px, var(--safe-bottom));
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.28s ease, visibility 0.28s ease;
+    }
+
+    .modal-overlay.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #photo-modal {
+      z-index: 40;
+      background: var(--modal-backdrop);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    .photo-card {
+      position: relative;
+      width: min(88vw, 360px);
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 20px;
+      padding: 14px 14px 22px;
+      background: rgba(18, 23, 52, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+      transform: scale(0.94) translateY(10px);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+
+    #photo-modal.is-open .photo-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(4, 6, 17, 0.68);
+      color: var(--text-primary);
+      font-size: 1.05rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .modal-close:active {
+      transform: scale(0.9);
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .modal-close:focus-visible {
+      outline: 2px solid var(--star-gold);
+      outline-offset: 2px;
+    }
+
+    .photo-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      max-height: 54dvh;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #000000;
+    }
+
+    #modal-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0;
+    }
+
+    .film-warm-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0;
+      box-shadow: inset 0 0 42px var(--film-amber);
+    }
+
+    .photo-text-block {
+      padding: 16px 8px 2px;
+      text-align: center;
+    }
+
+    #modal-meta {
+      margin: 0 0 6px;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--star-gold);
+      opacity: 0;
+    }
+
+    #modal-meta:empty {
+      display: none;
+    }
+
+    #modal-caption {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: clamp(1.25rem, 4.5vw, 1.55rem);
+      line-height: 1.45;
+      color: var(--text-primary);
+      opacity: 0;
+    }
+
+    /* Darkroom Development Animations */
+    #photo-modal.is-developing #modal-img {
+      animation: developPhoto 1.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    #photo-modal.is-developing .film-warm-overlay {
+      animation: warmFilmOverlay 1.9s ease-out forwards;
+    }
+
+    #photo-modal.is-developing #modal-meta,
+    #photo-modal.is-developing #modal-caption {
+      animation: revealCaption 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+    }
+
+    @keyframes developPhoto {
+      0% {
+        opacity: 0;
+        filter: brightness(0.05) contrast(180%) blur(14px) sepia(85%);
+        transform: scale(0.96);
+      }
+      45% {
+        opacity: 0.75;
+        filter: brightness(0.65) contrast(135%) blur(5px) sepia(45%);
+        transform: scale(0.985);
+      }
+      100% {
+        opacity: 1;
+        filter: brightness(1) contrast(100%) blur(0px) sepia(0%);
+        transform: scale(1);
+      }
+    }
+
+    @keyframes warmFilmOverlay {
+      0% {
+        opacity: 0;
+        background: radial-gradient(circle, rgba(255, 165, 80, 0.45) 0%, rgba(180, 70, 30, 0.25) 100%);
+      }
+      35% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes revealCaption {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ======================================================================
+       SCREEN 5: FINAL CONFESSION OVERLAY
+       ====================================================================== */
+    #confession-modal {
+      z-index: 60;
+      display: block;
+      padding: 0;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 94, 142, 0.22), rgba(11, 16, 38, 0.96) 70%);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+
+    .confession-embers {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ember-dot {
+      position: absolute;
+      bottom: -16px;
+      border-radius: 50%;
+      opacity: 0;
+      animation: emberRise var(--ember-dur, 7s) linear infinite;
+      animation-delay: var(--ember-delay, 0s);
+      will-change: transform, opacity;
+    }
+
+    @keyframes emberRise {
+      0% {
+        transform: translate3d(0, 0, 0) scale(0.7);
+        opacity: 0;
+      }
+      18% {
+        opacity: var(--ember-opacity, 0.75);
+      }
+      80% {
+        opacity: var(--ember-opacity, 0.75);
+      }
+      100% {
+        transform: translate3d(var(--ember-drift, 18px), -105dvh, 0) scale(1.1);
+        opacity: 0;
+      }
+    }
+
+    .confession-close {
+      position: fixed;
+      top: var(--safe-top);
+      right: 16px;
+      z-index: 5;
+      background: rgba(15, 20, 45, 0.75);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .confession-scroll {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding:
+        calc(var(--safe-top) + 52px)
+        24px
+        calc(var(--safe-bottom) + 28px);
+    }
+
+    .confession-card {
+      width: min(100%, 440px);
+      margin: auto 0;
+      text-align: center;
+    }
+
+    .confession-emblem {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 94, 142, 0.26) 0%, transparent 70%);
+      animation: heartbeat 2.4s ease-in-out infinite;
+    }
+
+    .confession-emblem svg {
+      width: 48px;
+      height: 48px;
+      filter: drop-shadow(0 0 16px var(--accent-rose-glow));
+    }
+
+    @keyframes heartbeat {
+      0%, 100% {
+        transform: scale(1);
+      }
+      14% {
+        transform: scale(1.1);
+      }
+      28% {
+        transform: scale(1);
+      }
+      42% {
+        transform: scale(1.07);
+      }
+      70% {
+        transform: scale(1);
+      }
+    }
+
+    .confession-title {
+      margin: 0 0 22px;
+      font-family: var(--font-serif);
+      font-size: clamp(1.75rem, 6vw, 2.35rem);
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--text-primary);
+      text-shadow: 0 2px 18px rgba(255, 94, 142, 0.24);
+    }
+
+    .confession-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .confession-paragraph {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-weight: 500;
+      font-size: 1.15rem;
+      line-height: 1.65;
+      color: var(--text-primary);
+      opacity: 0;
+    }
+
+    .confession-signature {
+      margin: 0 0 30px;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 600;
+      font-size: 1.35rem;
+      color: var(--star-gold);
+      text-align: right;
+      padding-right: 6px;
+      opacity: 0;
+    }
+
+    #confession-modal.is-open .confession-paragraph,
+    #confession-modal.is-open .confession-signature {
+      animation: revealCaption 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--stagger-delay, 0.25s) forwards;
+    }
+
+    .heart-burst-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 13px 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 94, 142, 0.65);
+      background: linear-gradient(135deg, rgba(255, 94, 142, 0.34) 0%, rgba(255, 209, 102, 0.18) 100%);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.24),
+        0 10px 28px rgba(255, 94, 142, 0.28);
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+    }
+
+    .heart-burst-btn:active {
+      transform: scale(0.95);
+    }
+
+    .heart-burst-btn:focus-visible {
+      outline: 2px solid var(--star-gold);
+      outline-offset: 3px;
+    }
+
+    /* ======================================================================
+       LANDSCAPE WARNING OVERLAY
+       ====================================================================== */
+    #landscape-warning {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(4, 6, 17, 0.96);
+      padding: 24px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 14px;
+    }
+
+    .landscape-icon {
+      width: 44px;
+      height: 44px;
+      color: var(--star-gold);
+      animation: rotateHint 2.2s ease-in-out infinite;
+    }
+
+    .landscape-text {
+      margin: 0;
+      max-width: 340px;
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+
+    @keyframes rotateHint {
+      0%, 100% {
+        transform: rotate(0deg);
+      }
+      50% {
+        transform: rotate(-90deg);
+      }
+    }
+
+    @media screen and (orientation: landscape) and (max-height: 520px) {
+      #landscape-warning {
+        display: flex;
+      }
+    }
+
+    /* ======================================================================
+       ACCESSIBILITY FALLBACKS
+       ====================================================================== */
+    @media (prefers-reduced-transparency: reduce) {
+      .progress-pill,
+      #photo-modal,
+      #confession-modal {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      .progress-pill {
+        background: #0f142d;
+      }
+
+      #photo-modal {
+        background: rgba(4, 6, 17, 0.96);
+      }
+
+      #confession-modal {
+        background: #0b1026;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .preloader-aura,
+      .preloader-star-svg,
+      .star-halo,
+      .final-ring,
+      .final-star-label,
+      .confession-emblem,
+      .ember-dot,
+      .landscape-icon {
+        animation: none !important;
+      }
+
+      #photo-modal.is-developing #modal-img,
+      #photo-modal.is-developing .film-warm-overlay,
+      #photo-modal.is-developing #modal-meta,
+      #photo-modal.is-developing #modal-caption,
+      #confession-modal.is-open .confession-paragraph,
+      #confession-modal.is-open .confession-signature {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+      }
+
+      #photo-modal.is-developing .film-warm-overlay {
+        opacity: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Screen 1: Preloader -->
+  <div id="preloader" role="status" aria-live="polite">
+    <div class="preloader-star-wrap" aria-hidden="true">
+      <div class="preloader-aura"></div>
+      <svg class="preloader-star-svg" viewBox="0 0 64 64" fill="none">
+        <path d="M32 4L38.2 25.8L60 32L38.2 38.2L32 60L25.8 38.2L4 32L25.8 25.8L32 4Z" fill="#FFF6D6"/>
+        <path d="M32 14L35.4 28.6L50 32L35.4 35.4L32 50L28.6 35.4L14 32L28.6 28.6L32 14Z" fill="#FFD166" fill-opacity="0.7"/>
+      </svg>
+    </div>
+    <p class="preloader-greeting" id="preloader-greeting"></p>
+    <h1 class="preloader-title">Собираем звёзды для тебя...</h1>
+    <div class="preloader-progress-track" aria-hidden="true">
+      <div class="preloader-progress-fill" id="preloader-fill"></div>
+    </div>
+    <p class="preloader-percent" id="preloader-percent">0%</p>
+  </div>
+
+  <!-- Screen 2: Starry Sky -->
+  <main id="sky-screen">
+    <canvas id="sky-canvas" aria-hidden="true"></canvas>
+
+    <div class="sky-stage" id="sky-stage">
+      <header id="sky-header">
+        <p class="sky-hint" id="sky-hint-text"></p>
+      </header>
+
+      <div id="stars-layer" aria-label="Интерактивное звёздное небо">
+        <!-- Photo stars & Final Confession star are rendered dynamically from CONFIG -->
+      </div>
+
+      <footer id="sky-footer">
+        <div class="progress-pill" id="progress-pill" aria-live="polite">
+          <svg class="progress-pill-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z"/>
+          </svg>
+          <span id="progress-text">Открыто звёзд: 0 из 12</span>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <!-- Screen 3: Photo Modal -->
+  <div id="photo-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-caption" aria-hidden="true">
+    <div class="photo-card">
+      <button type="button" class="modal-close" id="photo-modal-close" aria-label="Закрыть">✕</button>
+      <div class="photo-frame">
+        <img id="modal-img" alt="Воспоминание">
+        <div class="film-warm-overlay" aria-hidden="true"></div>
+      </div>
+      <div class="photo-text-block">
+        <p id="modal-meta"></p>
+        <p id="modal-caption"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 5: Final Confession Overlay -->
+  <div id="confession-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confession-title" aria-hidden="true">
+    <div class="confession-embers" id="confession-embers" aria-hidden="true"></div>
+    <button type="button" class="modal-close confession-close" id="confession-modal-close" aria-label="Закрыть">✕</button>
+
+    <div class="confession-scroll">
+      <article class="confession-card">
+        <div class="confession-emblem" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M32 54C32 54 10 40.2 10 23.8C10 16.2 16 10.5 23.2 10.5C27.5 10.5 30.8 12.7 32 15.6C33.2 12.7 36.5 10.5 40.8 10.5C48 10.5 54 16.2 54 23.8C54 40.2 32 54 32 54Z" fill="url(#confessionHeartGrad)"/>
+            <path d="M32 19L34.4 26.6L42 29L34.4 31.4L32 39L29.6 31.4L22 29L29.6 26.6L32 19Z" fill="#FFF6D6" fill-opacity="0.92"/>
+            <defs>
+              <linearGradient id="confessionHeartGrad" x1="12" y1="10" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#FF7AA2"/>
+                <stop offset="0.6" stop-color="#FF5E8E"/>
+                <stop offset="1" stop-color="#FFD166"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <h2 class="confession-title" id="confession-title"></h2>
+        <div class="confession-body" id="confession-body"></div>
+        <p class="confession-signature" id="confession-signature"></p>
+
+        <button type="button" class="heart-burst-btn" id="heart-burst-btn">
+          ✨ Зажечь сердце в небе
+        </button>
+      </article>
+    </div>
+  </div>
+
+  <!-- Landscape Phone Guard -->
+  <div id="landscape-warning" role="alert">
+    <svg class="landscape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="7" y="2" width="10" height="20" rx="2"/>
+      <path d="M12 18h.01"/>
+    </svg>
+    <p class="landscape-text">Поверни телефон вертикально, чтобы увидеть наше звёздное небо ✨</p>
+  </div>
+
+  <script>
+    // ============================================================================
+    // ✨ НАСТРОЙКИ ПРОЕКТА (МЕНЯТЬ ЗДЕСЬ) ✨
+    // ----------------------------------------------------------------------------
+    // 1. Положи свои фотографии в папку "photos" рядом с этим файлом index.html.
+    // 2. Назови их 1.jpg, 2.jpg ... 12.jpg (или укажи свои названия ниже в поле photo).
+    // 3. Поменяй тексты подписей (caption) на свои личные причины.
+    // 4. Координаты x и y задаются в процентах от ширины и высоты экрана (от 12 до 88),
+    //    чтобы звёзды не прилипали к краям телефона.
+    // ============================================================================
+
+    const CONFIG = {
+      girlfriendName: "Дорогая Дина", // Имя девушки (используется в приветствии)
+      skyHintText: "Каждая звезда хранит причину, почему я тебя люблю. Прикоснись к ним ✨",
+
+      // Список звёзд с фотографиями (можно добавлять или удалять объекты по образцу)
+      stars: [
+        {
+          id: 1,
+          photo: "photos/1.jpg",
+          caption: "За этот взгляд, в котором я каждый раз теряю счёт времени и забываю обо всём на свете.",
+          dateOrPlace: "Особенный момент #1", // Необязательная мелкая подпись (можно оставить пустой: "")
+          x: 22,
+          y: 18,
+          size: 1.15
+        },
+        {
+          id: 2,
+          photo: "photos/2.jpg",
+          caption: "За твой искренний смех, который способен спасти даже самый пасмурный и тяжёлый день.",
+          dateOrPlace: "Твоя улыбка",
+          x: 76,
+          y: 16,
+          size: 1.0
+        },
+        {
+          id: 3,
+          photo: "photos/3.jpg",
+          caption: "За то, как уютно и спокойно становится просто от того, как ты оказываешься со мной",
+          dateOrPlace: "Наше тепло",
+          x: 48,
+          y: 26,
+          size: 1.2
+        },
+        {
+          id: 4,
+          photo: "photos/4.jpg",
+          caption: "За твои тёплые ладони, которые я готов держать вечно в любую погоду.",
+          dateOrPlace: "Нежность",
+          x: 18,
+          y: 36,
+          size: 0.95
+        },
+        {
+          id: 5,
+          photo: "photos/5.jpg",
+          caption: "За то, как ты прекрасно выглядишь, а каждая деталь твоего образа тебе идет идеально)",
+          dateOrPlace: "Любимые детали",
+          x: 82,
+          y: 34,
+          size: 1.1
+        },
+        {
+          id: 6,
+          photo: "photos/6.jpg",
+          caption: "За твою доброту и чуткость к мелочам, которых другие люди даже не замечают.",
+          dateOrPlace: "Твоё сердце",
+          x: 33,
+          y: 48,
+          size: 1.05
+        },
+        {
+          id: 7,
+          photo: "photos/7.jpg",
+          caption: "За наши долгие разговоры обо всём на свете, когда ночь пролетает как одна минута.",
+          dateOrPlace: "Ночные беседы",
+          x: 68,
+          y: 49,
+          size: 1.15
+        },
+        {
+          id: 8,
+          photo: "photos/8.jpg",
+          caption: "За то, как ты поддерживаешь меня во всех моих начинаниях",
+          dateOrPlace: "Вдохновение",
+          x: 16,
+          y: 62,
+          size: 1.0
+        },
+        {
+          id: 9,
+          photo: "photos/9.jpg",
+          caption: "За твою веру в меня — даже в те минуты, когда мне самому не хватает уверенности.",
+          dateOrPlace: "Моя опора",
+          x: 52,
+          y: 60,
+          size: 1.2
+        },
+        {
+          id: 10,
+          photo: "photos/10.jpg",
+          caption: "За то, что с тобой каждый момент моей жизни становится лучше",
+          dateOrPlace: "Вместе",
+          x: 84,
+          y: 64,
+          size: 0.95
+        },
+        {
+          id: 11,
+          photo: "photos/11.jpg",
+          caption: "За твою нежность по утрам и то особенное чувство дома, которое даришь только ты.",
+          dateOrPlace: "Наше утро",
+          x: 28,
+          y: 77,
+          size: 1.1
+        },
+        {
+          id: 12,
+          photo: "photos/12.jpg",
+          caption: "За то, что ты просто есть в моей жизни и делаешь каждый мой день осмысленным.",
+          dateOrPlace: "Навсегда",
+          x: 72,
+          y: 79,
+          size: 1.15
+        }
+      ],
+
+      // Координаты и текст главной пульсирующей звезды (финальное признание)
+      finalStar: {
+        x: 50,
+        y: 41,
+        labelBeforeAllOpened: "Главная звезда",
+        labelAfterAllOpened: "Открой меня ❤️",
+        title: "Моё главное признание",
+        paragraphs: [
+          "Говорят, что на ночном небе миллиарды звёзд, но с того дня, как мы познакомились, весь мой мир вращается только вокруг одной — вокруг тебя.",
+          "Каждая звездочка на этом небе — лишь маленькая частичка того, как сильно ты мне дорога. Я люблю твой голос, твои привычки, твои мечты и то, каким человеком я становлюсь рядом с тобой.",
+          "Спасибо тебе за каждый наш день, за каждую улыбку и за то тепло, которым ты наполняешь мою жизнь. Я очень сильно тебя люблю ❤️"
+        ],
+        signature: "Твой навсегда, с любовью, Филипп ✨"
+      }
+    };
+
+    // ============================================================================
+    // TELEGRAM WEBAPP SDK INTEGRATION
+    // ============================================================================
+    const TelegramService = {
+      tg: null,
+      backHandler: null,
+      viewportHandler: null,
+
+      init(onBackButtonClick, onViewportChange) {
+        this.tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        this.backHandler = onBackButtonClick;
+        this.viewportHandler = onViewportChange;
+
+        if (!this.tg) {
+          return;
+        }
+
+        try {
+          this.tg.ready();
+          this.tg.expand();
+        } catch (err) {
+          // Ignore SDK initialization differences across clients
+        }
+
+        try {
+          if (typeof this.tg.setHeaderColor === "function") {
+            this.tg.setHeaderColor("#040611");
+          }
+          if (typeof this.tg.setBackgroundColor === "function") {
+            this.tg.setBackgroundColor("#040611");
+          }
+          if (typeof this.tg.disableVerticalSwipes === "function") {
+            this.tg.disableVerticalSwipes();
+          }
+        } catch (err) {
+          // Older Telegram client versions may not support color/swipe APIs
+        }
+
+        this.syncSafeAreas();
+
+        try {
+          if (typeof this.tg.onEvent === "function") {
+            this.tg.onEvent("safeAreaChanged", () => this.syncSafeAreas());
+            this.tg.onEvent("contentSafeAreaChanged", () => this.syncSafeAreas());
+            this.tg.onEvent("viewportChanged", () => {
+              this.syncSafeAreas();
+              if (typeof this.viewportHandler === "function") {
+                this.viewportHandler();
+              }
+            });
+          }
+          if (this.tg.BackButton && typeof this.tg.BackButton.onClick === "function") {
+            this.tg.BackButton.onClick(() => {
+              if (typeof this.backHandler === "function") {
+                this.backHandler();
+              }
+            });
+          }
+        } catch (err) {
+          // Safe fallback when events are unavailable
+        }
+      },
+
+      syncSafeAreas() {
+        if (!this.tg) return;
+        try {
+          const safeTopInset = (this.tg.safeAreaInset && this.tg.safeAreaInset.top) || 0;
+          const contentTopInset = (this.tg.contentSafeAreaInset && this.tg.contentSafeAreaInset.top) || 0;
+          const safeBottomInset = (this.tg.safeAreaInset && this.tg.safeAreaInset.bottom) || 0;
+          const contentBottomInset = (this.tg.contentSafeAreaInset && this.tg.contentSafeAreaInset.bottom) || 0;
+
+          const totalTop = safeTopInset + contentTopInset;
+          const totalBottom = safeBottomInset + contentBottomInset;
+
+          if (totalTop > 0) {
+            document.documentElement.style.setProperty("--safe-top", `${Math.max(16, totalTop)}px`);
+          }
+          if (totalBottom > 0) {
+            document.documentElement.style.setProperty("--safe-bottom", `${Math.max(20, totalBottom)}px`);
+          }
+        } catch (err) {
+          // Keep CSS env() defaults
+        }
+      },
+
+      showBackButton() {
+        try {
+          if (this.tg && this.tg.BackButton && typeof this.tg.BackButton.show === "function") {
+            this.tg.BackButton.show();
+          }
+        } catch (err) {
+          // No-op outside Telegram
+        }
+      },
+
+      hideBackButton() {
+        try {
+          if (this.tg && this.tg.BackButton && typeof this.tg.BackButton.hide === "function") {
+            this.tg.BackButton.hide();
+          }
+        } catch (err) {
+          // No-op outside Telegram
+        }
+      },
+
+      hapticLight() {
+        try {
+          this.tg?.HapticFeedback?.impactOccurred("light");
+        } catch (err) {}
+      },
+
+      hapticMedium() {
+        try {
+          this.tg?.HapticFeedback?.impactOccurred("medium");
+        } catch (err) {}
+      },
+
+      hapticSuccess() {
+        try {
+          this.tg?.HapticFeedback?.notificationOccurred("success");
+        } catch (err) {}
+      }
+    };
+
+    // ============================================================================
+    // APPLICATION STATE
+    // ============================================================================
+    const state = {
+      loadedImages: new Map(),
+      preloadedImageRefs: [],
+      visitedStars: new Set(),
+      visitedOrder: [],
+      hasCelebratedCompletion: false,
+      activeModal: null, // 'photo' | 'confession' | null
+      isModalTransitioning: false,
+      pendingCompletionCelebration: false
+    };
+
+    // ============================================================================
+    // PROCEDURAL SVG FALLBACK GENERATOR
+    // ============================================================================
+    function createStarFallbackSvg(star) {
+      const seed = Number(star.id) || 1;
+      const pts = [];
+      for (let i = 0; i < 6; i++) {
+        const angle = ((seed * 47 + i * 61) % 360) * (Math.PI / 180);
+        const radius = 110 + ((seed * 37 + i * 73) % 145);
+        const px = Math.round(400 + Math.cos(angle) * radius);
+        const py = Math.round(455 + Math.sin(angle) * radius * 1.12);
+        pts.push({ x: px, y: py });
+      }
+
+      const linesSvg = pts
+        .map((pt, idx) => {
+          const next = pts[(idx + 1) % pts.length];
+          return `<line x1="${pt.x}" y1="${pt.y}" x2="${next.x}" y2="${next.y}" stroke="#FFD166" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="5 6"/>`;
+        })
+        .join("");
+
+      const nodesSvg = pts
+        .map((pt, idx) => {
+          const r = idx % 2 === 0 ? 5 : 3.5;
+          return `
+            <circle cx="${pt.x}" cy="${pt.y}" r="${r * 2.6}" fill="#FFD166" fill-opacity="0.22"/>
+            <circle cx="${pt.x}" cy="${pt.y}" r="${r}" fill="#FFF6D6"/>
+          `;
+        })
+        .join("");
+
+      let dustSvg = "";
+      for (let i = 0; i < 42; i++) {
+        const dx = ((seed * 131 + i * 197) % 720) + 40;
+        const dy = ((seed * 173 + i * 251) % 920) + 40;
+        const dr = (((seed + i) % 3) + 1) * 0.8;
+        const op = (0.2 + ((seed + i) % 5) * 0.12).toFixed(2);
+        dustSvg += `<circle cx="${dx}" cy="${dy}" r="${dr}" fill="#E8F0FF" fill-opacity="${op}"/>`;
+      }
+
+      const subtitle = star.dateOrPlace
+        ? escapeXml(star.dateOrPlace)
+        : "Наше созвездие";
+
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+          <defs>
+            <radialGradient id="sky" cx="50%" cy="44%" r="72%">
+              <stop offset="0%" stop-color="#22194D"/>
+              <stop offset="52%" stop-color="#0D1330"/>
+              <stop offset="100%" stop-color="#050816"/>
+            </radialGradient>
+            <radialGradient id="roseGlow" cx="50%" cy="46%" r="42%">
+              <stop offset="0%" stop-color="#FF5E8E" stop-opacity="0.28"/>
+              <stop offset="100%" stop-color="#FF5E8E" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="goldGlow" cx="50%" cy="46%" r="32%">
+              <stop offset="0%" stop-color="#FFD166" stop-opacity="0.32"/>
+              <stop offset="100%" stop-color="#FFD166" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="1000" fill="url(#sky)"/>
+          <circle cx="400" cy="455" r="340" fill="url(#roseGlow)"/>
+          <circle cx="400" cy="455" r="240" fill="url(#goldGlow)"/>
+          ${dustSvg}
+          ${linesSvg}
+          ${nodesSvg}
+          <g transform="translate(400 455)">
+            <circle r="38" fill="#FFD166" fill-opacity="0.16"/>
+            <path d="M0 -30 L7 -7 L30 0 L7 7 L0 30 L-7 7 L-30 0 L-7 -7 Z" fill="#FFF6D6"/>
+            <circle r="4.5" fill="#FFD166"/>
+          </g>
+          <text x="400" y="810" text-anchor="middle" fill="#FDFBF7" font-family="Georgia, serif" font-size="38" letter-spacing="2">
+            Звезда #${escapeXml(String(star.id))}
+          </text>
+          <text x="400" y="856" text-anchor="middle" fill="#B8C0E0" font-family="sans-serif" font-size="20" letter-spacing="3">
+            ${subtitle.toUpperCase()}
+          </text>
+        </svg>
+      `.trim();
+
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    function escapeXml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;");
+    }
+
+    // ============================================================================
+    // PRELOADER LOGIC
+    // ============================================================================
+    function preloadAllPhotos() {
+      const greetingEl = document.getElementById("preloader-greeting");
+      const fillEl = document.getElementById("preloader-fill");
+      const percentEl = document.getElementById("preloader-percent");
+      const preloaderEl = document.getElementById("preloader");
+
+      if (CONFIG.girlfriendName && CONFIG.girlfriendName.trim()) {
+        greetingEl.textContent = `Для тебя, ${CONFIG.girlfriendName.trim()}`;
+      }
+
+      const stars = CONFIG.stars;
+      const total = stars.length;
+      const minDisplayMs = 1100;
+      const startTime = performance.now();
+      let completedCount = 0;
+
+      const imagePromises = stars.map((star) => {
+        return new Promise((resolve) => {
+          let settled = false;
+          const img = new Image();
+
+          const finish = (resolvedSrc) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            img.onload = null;
+            img.onerror = null;
+            state.loadedImages.set(star.id, resolvedSrc);
+            completedCount += 1;
+            resolve();
+          };
+
+          const timer = setTimeout(() => {
+            finish(createStarFallbackSvg(star));
+          }, 4000);
+
+          img.onload = () => {
+            if (img.naturalWidth > 0) {
+              state.preloadedImageRefs.push(img);
+              finish(star.photo);
+            } else {
+              finish(createStarFallbackSvg(star));
+            }
+          };
+
+          img.onerror = () => {
+            finish(createStarFallbackSvg(star));
+          };
+
+          img.src = star.photo;
+        });
+      });
+
+      let allImagesSettled = total === 0;
+      Promise.all(imagePromises).then(() => {
+        allImagesSettled = true;
+      });
+
+      return new Promise((resolve) => {
+        function updateProgressBar(now) {
+          const elapsed = now - startTime;
+          const timeRatio = Math.min(1, elapsed / minDisplayMs);
+          const loadRatio = total === 0 ? 1 : completedCount / total;
+          const visualRatio = allImagesSettled
+            ? timeRatio
+            : Math.min(loadRatio, timeRatio * 0.96 + 0.04);
+
+          const pct = Math.round(visualRatio * 100);
+          fillEl.style.width = `${pct}%`;
+          percentEl.textContent = `${pct}%`;
+
+          if (allImagesSettled && elapsed >= minDisplayMs) {
+            fillEl.style.width = "100%";
+            percentEl.textContent = "100%";
+            setTimeout(() => {
+              preloaderEl.classList.add("is-hidden");
+              preloaderEl.setAttribute("aria-hidden", "true");
+              resolve();
+            }, 140);
+          } else {
+            requestAnimationFrame(updateProgressBar);
+          }
+        }
+
+        requestAnimationFrame(updateProgressBar);
+      });
+    }
+
+    // ============================================================================
+    // CANVAS NIGHT SKY ENGINE
+    // ============================================================================
+    const SkyCanvas = {
+      canvas: null,
+      ctx: null,
+      bgCache: null,
+      stageEl: null,
+      width: 0,
+      height: 0,
+      dpr: 1,
+      stageRect: { left: 0, top: 0, width: 390, height: 844 },
+      bgStars: [],
+      shootingStar: null,
+      nextShootingStarAt: 0,
+      particles: [],
+      heartSilhouette: [],
+      heartSilhouetteActive: false,
+      parallaxTargetX: 0,
+      parallaxTargetY: 0,
+      parallaxX: 0,
+      parallaxY: 0,
+      rafId: null,
+      lastTime: 0,
+      reducedMotion: false,
+
+      init() {
+        this.canvas = document.getElementById("sky-canvas");
+        this.ctx = this.canvas.getContext("2d", { alpha: false });
+        this.stageEl = document.getElementById("sky-stage");
+        this.bgCache = document.createElement("canvas");
+        this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        this.generateBgStars();
+        this.generateHeartSilhouette();
+        this.resize();
+        this.bindEvents();
+
+        this.nextShootingStarAt = performance.now() + 5000 + Math.random() * 5000;
+        this.lastTime = performance.now();
+        this.start();
+      },
+
+      generateBgStars() {
+        this.bgStars = [];
+        for (let i = 0; i < 120; i++) {
+          this.bgStars.push({
+            x: Math.random(),
+            y: Math.random(),
+            radius: 0.5 + Math.random() * 1.3,
+            baseAlpha: 0.2 + Math.random() * 0.65,
+            twinkleSpeed: 0.001 + Math.random() * 0.003,
+            phase: Math.random() * Math.PI * 2,
+            depth: 0.35 + Math.random() * 0.65
+          });
+        }
+      },
+
+      generateHeartSilhouette() {
+        this.heartSilhouette = [];
+        const count = 64;
+        for (let i = 0; i < count; i++) {
+          const t = (i / count) * Math.PI * 2;
+          const hx = 16 * Math.pow(Math.sin(t), 3);
+          const hy = -(
+            13 * Math.cos(t) -
+            5 * Math.cos(2 * t) -
+            2 * Math.cos(3 * t) -
+            Math.cos(4 * t)
+          );
+          this.heartSilhouette.push({
+            hx,
+            hy,
+            phase: Math.random() * Math.PI * 2,
+            size: 1.1 + Math.random() * 1.3,
+            isRose: i % 3 !== 0
+          });
+        }
+      },
+
+      resize() {
+        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+
+        this.canvas.width = Math.floor(this.width * this.dpr);
+        this.canvas.height = Math.floor(this.height * this.dpr);
+        this.canvas.style.width = `${this.width}px`;
+        this.canvas.style.height = `${this.height}px`;
+
+        if (this.stageEl) {
+          const rect = this.stageEl.getBoundingClientRect();
+          this.stageRect = {
+            left: rect.left,
+            top: rect.top,
+            width: rect.width || this.width,
+            height: rect.height || this.height
+          };
+        }
+
+        this.renderStaticBackgroundCache();
+      },
+
+      renderStaticBackgroundCache() {
+        this.bgCache.width = Math.max(1, Math.floor(this.width * this.dpr));
+        this.bgCache.height = Math.max(1, Math.floor(this.height * this.dpr));
+        const bctx = this.bgCache.getContext("2d", { alpha: false });
+        bctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+
+        const skyGrad = bctx.createLinearGradient(0, 0, 0, this.height);
+        skyGrad.addColorStop(0, "#040611");
+        skyGrad.addColorStop(0.54, "#0B1026");
+        skyGrad.addColorStop(1, "#1A1136");
+        bctx.fillStyle = skyGrad;
+        bctx.fillRect(0, 0, this.width, this.height);
+
+        const cx1 = this.width * 0.28;
+        const cy1 = this.height * 0.3;
+        const r1 = Math.max(this.width, this.height) * 0.52;
+        const neb1 = bctx.createRadialGradient(cx1, cy1, 0, cx1, cy1, r1);
+        neb1.addColorStop(0, "rgba(88, 56, 168, 0.14)");
+        neb1.addColorStop(1, "rgba(88, 56, 168, 0)");
+        bctx.fillStyle = neb1;
+        bctx.fillRect(0, 0, this.width, this.height);
+
+        const cx2 = this.width * 0.72;
+        const cy2 = this.height * 0.62;
+        const r2 = Math.max(this.width, this.height) * 0.45;
+        const neb2 = bctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, r2);
+        neb2.addColorStop(0, "rgba(255, 94, 142, 0.08)");
+        neb2.addColorStop(1, "rgba(255, 94, 142, 0)");
+        bctx.fillStyle = neb2;
+        bctx.fillRect(0, 0, this.width, this.height);
+      },
+
+      bindEvents() {
+        window.addEventListener("resize", () => this.resize());
+
+        const handlePointer = (clientX, clientY) => {
+          if (this.reducedMotion || !this.width || !this.height) return;
+          const nx = (clientX / this.width - 0.5) * 2;
+          const ny = (clientY / this.height - 0.5) * 2;
+          this.parallaxTargetX = clamp(-nx * 12, -12, 12);
+          this.parallaxTargetY = clamp(-ny * 12, -12, 12);
+        };
+
+        window.addEventListener("pointermove", (e) => {
+          handlePointer(e.clientX, e.clientY);
+        }, { passive: true });
+
+        window.addEventListener("touchmove", (e) => {
+          if (e.touches && e.touches[0]) {
+            handlePointer(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        }, { passive: true });
+
+        window.addEventListener("deviceorientation", (e) => {
+          if (this.reducedMotion) return;
+          if (typeof e.gamma === "number" && typeof e.beta === "number") {
+            const gx = clamp(e.gamma / 3, -12, 12);
+            const by = clamp((e.beta - 45) / 3, -12, 12);
+            this.parallaxTargetX = gx;
+            this.parallaxTargetY = by;
+          }
+        }, { passive: true });
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            this.stop();
+          } else {
+            this.lastTime = performance.now();
+            this.nextShootingStarAt = this.lastTime + 4500 + Math.random() * 4500;
+            this.start();
+          }
+        });
+      },
+
+      start() {
+        if (this.rafId !== null) return;
+        const tick = (now) => {
+          this.renderFrame(now);
+          this.rafId = requestAnimationFrame(tick);
+        };
+        this.rafId = requestAnimationFrame(tick);
+      },
+
+      stop() {
+        if (this.rafId !== null) {
+          cancelAnimationFrame(this.rafId);
+          this.rafId = null;
+        }
+      },
+
+      getHeartCenter() {
+        const originX = this.stageRect.left + (CONFIG.finalStar.x / 100) * this.stageRect.width;
+        const originY = this.stageRect.top + ((CONFIG.finalStar.y + 1.5) / 100) * this.stageRect.height;
+        const scale = Math.min(this.stageRect.width, this.stageRect.height) * 0.0082;
+        return { originX, originY, scale };
+      },
+
+      spawnHeartBurst(enablePersistentHeart = true) {
+        if (enablePersistentHeart) {
+          this.heartSilhouetteActive = true;
+        }
+
+        const { originX, originY, scale } = this.getHeartCenter();
+        const burstCenterX = this.stageRect.left + this.stageRect.width * 0.5;
+        const burstCenterY = this.stageRect.top + this.stageRect.height * 0.45;
+        const count = 90;
+
+        for (let i = 0; i < count; i++) {
+          const t = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.08;
+          const hx = 16 * Math.pow(Math.sin(t), 3);
+          const hy = -(
+            13 * Math.cos(t) -
+            5 * Math.cos(2 * t) -
+            2 * Math.cos(3 * t) -
+            Math.cos(4 * t)
+          );
+
+          const targetScale = scale * (0.94 + Math.random() * 0.24);
+          const targetX = originX + hx * targetScale;
+          const targetY = originY + hy * targetScale;
+          const isRose = i % 3 !== 0;
+
+          this.particles.push({
+            startX: burstCenterX,
+            startY: burstCenterY,
+            x: burstCenterX,
+            y: burstCenterY,
+            targetX,
+            targetY,
+            driftVx: (Math.random() - 0.5) * 18,
+            driftVy: -10 - Math.random() * 24,
+            age: 0,
+            duration: 2100 + Math.random() * 900,
+            radius: 1.5 + Math.random() * 2.1,
+            color: isRose ? "255, 94, 142" : "255, 209, 102"
+          });
+        }
+      },
+
+      spawnShootingStar(now) {
+        const startX = this.width * (0.15 + Math.random() * 0.65);
+        const startY = this.height * (0.06 + Math.random() * 0.3);
+        const angle = (22 + Math.random() * 22) * (Math.PI / 180);
+        const dir = Math.random() > 0.4 ? 1 : -1;
+        const distance = 150 + Math.random() * 140;
+
+        this.shootingStar = {
+          startX,
+          startY,
+          dx: Math.cos(angle) * distance * dir,
+          dy: Math.sin(angle) * distance,
+          bornAt: now,
+          duration: 900
+        };
+      },
+
+      renderFrame(now) {
+        const dt = Math.min(50, Math.max(0, now - this.lastTime));
+        this.lastTime = now;
+
+        const ctx = this.ctx;
+        ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+
+        // Layer 1: Cached cosmic gradient + nebula glows
+        ctx.drawImage(this.bgCache, 0, 0, this.width, this.height);
+
+        // Smooth parallax interpolation
+        const lerp = 1 - Math.exp(-dt * 0.008);
+        this.parallaxX += (this.parallaxTargetX - this.parallaxX) * lerp;
+        this.parallaxY += (this.parallaxTargetY - this.parallaxY) * lerp;
+
+        // 120 twinkling background stars
+        for (let i = 0; i < this.bgStars.length; i++) {
+          const s = this.bgStars[i];
+          const sx = s.x * this.width + this.parallaxX * s.depth;
+          const sy = s.y * this.height + this.parallaxY * s.depth;
+          const twinkle = this.reducedMotion
+            ? 0.85
+            : 0.62 + 0.38 * Math.sin(now * s.twinkleSpeed + s.phase);
+          const alpha = s.baseAlpha * twinkle;
+
+          ctx.fillStyle = `rgba(232, 240, 255, ${alpha.toFixed(3)})`;
+          ctx.beginPath();
+          ctx.arc(sx, sy, s.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Occasional shooting star (every 5-10 seconds)
+        if (!this.reducedMotion) {
+          if (!this.shootingStar && now >= this.nextShootingStarAt) {
+            this.spawnShootingStar(now);
+            this.nextShootingStarAt = now + 5000 + Math.random() * 5000;
+          }
+
+          if (this.shootingStar) {
+            const st = this.shootingStar;
+            const progress = (now - st.bornAt) / st.duration;
+            if (progress >= 1) {
+              this.shootingStar = null;
+            } else {
+              const headX = st.startX + st.dx * progress;
+              const headY = st.startY + st.dy * progress;
+              const tailProgress = Math.max(0, progress - 0.28);
+              const tailX = st.startX + st.dx * tailProgress;
+              const tailY = st.startY + st.dy * tailProgress;
+              const alpha = Math.sin(progress * Math.PI);
+
+              const grad = ctx.createLinearGradient(tailX, tailY, headX, headY);
+              grad.addColorStop(0, "rgba(232, 240, 255, 0)");
+              grad.addColorStop(1, `rgba(255, 246, 214, ${(alpha * 0.9).toFixed(3)})`);
+
+              ctx.strokeStyle = grad;
+              ctx.lineWidth = 1.6;
+              ctx.lineCap = "round";
+              ctx.beginPath();
+              ctx.moveTo(tailX, tailY);
+              ctx.lineTo(headX, headY);
+              ctx.stroke();
+
+              ctx.fillStyle = `rgba(255, 246, 214, ${alpha.toFixed(3)})`;
+              ctx.beginPath();
+              ctx.arc(headX, headY, 1.8, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+
+        // Constellation lines connecting visited stars in order
+        if (state.visitedOrder.length >= 2) {
+          ctx.save();
+          ctx.strokeStyle = "rgba(255, 209, 102, 0.26)";
+          ctx.lineWidth = 1.1;
+          ctx.setLineDash([4, 6]);
+          ctx.shadowColor = "rgba(255, 209, 102, 0.35)";
+          ctx.shadowBlur = 6;
+
+          ctx.beginPath();
+          for (let i = 0; i < state.visitedOrder.length; i++) {
+            const star = state.visitedOrder[i];
+            const px = this.stageRect.left + (star.x / 100) * this.stageRect.width;
+            const py = this.stageRect.top + (star.y / 100) * this.stageRect.height;
+            if (i === 0) {
+              ctx.moveTo(px, py);
+            } else {
+              ctx.lineTo(px, py);
+            }
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Persistent glowing stardust heart behind Final Confession star
+        if (this.heartSilhouetteActive) {
+          const { originX, originY, scale } = this.getHeartCenter();
+          const pulse = this.reducedMotion ? 1 : 1 + 0.045 * Math.sin(now * 0.0022);
+          const s = scale * pulse;
+
+          for (let i = 0; i < this.heartSilhouette.length; i++) {
+            const p = this.heartSilhouette[i];
+            const px = originX + p.hx * s;
+            const py = originY + p.hy * s;
+            const alpha = this.reducedMotion
+              ? 0.42
+              : 0.25 + 0.25 * (0.5 + 0.5 * Math.sin(now * 0.003 + p.phase));
+
+            ctx.fillStyle = p.isRose
+              ? `rgba(255, 94, 142, ${alpha.toFixed(3)})`
+              : `rgba(255, 209, 102, ${(alpha * 0.9).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.arc(px, py, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // Heart burst particles
+        if (this.particles.length > 0) {
+          for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+            p.age += dt;
+            const t = p.age / p.duration;
+            if (t >= 1) {
+              this.particles.splice(i, 1);
+              continue;
+            }
+
+            let px;
+            let py;
+            let alpha;
+
+            if (t < 0.45) {
+              const easeOut = 1 - Math.pow(1 - t / 0.45, 3);
+              px = p.startX + (p.targetX - p.startX) * easeOut;
+              py = p.startY + (p.targetY - p.startY) * easeOut;
+              alpha = 0.95;
+            } else {
+              const driftT = (t - 0.45) / 0.55;
+              px = p.targetX + p.driftVx * driftT;
+              py = p.targetY + p.driftVy * driftT;
+              alpha = (1 - driftT) * 0.95;
+            }
+
+            ctx.fillStyle = `rgba(${p.color}, ${(alpha * 0.25).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.arc(px, py, p.radius * 2.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = `rgba(${p.color}, ${alpha.toFixed(3)})`;
+            ctx.beginPath();
+            ctx.arc(px, py, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+    };
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    // ============================================================================
+    // DOM RENDERING & INTERACTIONS
+    // ============================================================================
+    const starButtonsById = new Map();
+    let finalStarBtnEl = null;
+    let finalStarLabelEl = null;
+
+    function renderSkyStars() {
+      const starsLayer = document.getElementById("stars-layer");
+      const skyHintEl = document.getElementById("sky-hint-text");
+      skyHintEl.textContent = CONFIG.skyHintText;
+
+      const fragment = document.createDocumentFragment();
+
+      CONFIG.stars.forEach((star) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "star-node";
+        btn.dataset.starId = String(star.id);
+        btn.setAttribute("aria-label", `Звезда ${star.id}${star.dateOrPlace ? `: ${star.dateOrPlace}` : ""}`);
+        btn.style.left = `${star.x}%`;
+        btn.style.top = `${star.y}%`;
+        btn.style.setProperty("--star-scale", String(star.size || 1));
+        btn.style.setProperty("--twinkle-delay", `${((star.id * 0.43) % 2.6).toFixed(2)}s`);
+
+        btn.innerHTML = `
+          <span class="star-halo" aria-hidden="true"></span>
+          <svg class="star-core" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 1L14.6 9.4L23 12L14.6 14.6L12 23L9.4 14.6L1 12L9.4 9.4L12 1Z"/>
+          </svg>
+          <span class="star-badge" aria-hidden="true">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="2.5 6.5 5 9 9.5 3.5"/>
+            </svg>
+          </span>
+        `;
+
+        btn.addEventListener("click", () => handlePhotoStarClick(star));
+        starButtonsById.set(star.id, btn);
+        fragment.appendChild(btn);
+      });
+
+      // Final Confession Star
+      const finalBtn = document.createElement("button");
+      finalBtn.type = "button";
+      finalBtn.id = "final-star-btn";
+      finalBtn.setAttribute("aria-label", CONFIG.finalStar.labelBeforeAllOpened);
+      finalBtn.style.left = `${CONFIG.finalStar.x}%`;
+      finalBtn.style.top = `${CONFIG.finalStar.y}%`;
+      finalBtn.innerHTML = `
+        <span class="final-ring final-ring-outer" aria-hidden="true"></span>
+        <span class="final-ring final-ring-inner" aria-hidden="true"></span>
+        <svg class="final-star-core" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M24 3L28.2 16.5L41 11L31.5 21.8L45 24L31.5 26.2L41 37L28.2 31.5L24 45L19.8 31.5L7 37L16.5 26.2L3 24L16.5 21.8L7 11L19.8 16.5L24 3Z" fill="url(#finalStarRoseGold)"/>
+          <path d="M24 30.2C24 30.2 17.5 26 17.5 21.5C17.5 19.3 19.2 17.7 21.3 17.7C22.6 17.7 23.5 18.4 24 19.3C24.5 18.4 25.4 17.7 26.7 17.7C28.8 17.7 30.5 19.3 30.5 21.5C30.5 26 24 30.2 24 30.2Z" fill="#FFF6D6"/>
+          <defs>
+            <linearGradient id="finalStarRoseGold" x1="6" y1="6" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFD166"/>
+              <stop offset="0.48" stop-color="#FF5E8E"/>
+              <stop offset="1" stop-color="#FF85AB"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="final-star-label" id="final-star-label">${escapeHtml(CONFIG.finalStar.labelBeforeAllOpened)}</span>
+      `;
+
+      finalBtn.addEventListener("click", handleFinalStarClick);
+      fragment.appendChild(finalBtn);
+      starsLayer.appendChild(fragment);
+
+      finalStarBtnEl = finalBtn;
+      finalStarLabelEl = document.getElementById("final-star-label");
+
+      updateProgressHud();
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function renderConfessionContent() {
+      const titleEl = document.getElementById("confession-title");
+      const bodyEl = document.getElementById("confession-body");
+      const signatureEl = document.getElementById("confession-signature");
+      const embersEl = document.getElementById("confession-embers");
+
+      titleEl.textContent = CONFIG.finalStar.title;
+      bodyEl.innerHTML = "";
+
+      CONFIG.finalStar.paragraphs.forEach((paragraphText, index) => {
+        const p = document.createElement("p");
+        p.className = "confession-paragraph";
+        p.style.setProperty("--stagger-delay", `${(0.25 + index * 0.3).toFixed(2)}s`);
+        p.textContent = paragraphText;
+        bodyEl.appendChild(p);
+      });
+
+      const sigDelay = 0.25 + CONFIG.finalStar.paragraphs.length * 0.3;
+      signatureEl.style.setProperty("--stagger-delay", `${sigDelay.toFixed(2)}s`);
+      signatureEl.textContent = CONFIG.finalStar.signature;
+
+      // Floating background embers
+      const emberFrag = document.createDocumentFragment();
+      for (let i = 0; i < 18; i++) {
+        const dot = document.createElement("span");
+        dot.className = "ember-dot";
+        const size = 2 + (i % 3) * 1.4;
+        dot.style.width = `${size}px`;
+        dot.style.height = `${size}px`;
+        dot.style.left = `${(i * 19 + 7) % 96 + 2}%`;
+        dot.style.background = i % 2 === 0 ? "#FF5E8E" : "#FFD166";
+        dot.style.boxShadow = i % 2 === 0
+          ? "0 0 8px rgba(255, 94, 142, 0.85)"
+          : "0 0 8px rgba(255, 209, 102, 0.85)";
+        dot.style.setProperty("--ember-dur", `${5.8 + (i % 5) * 1.3}s`);
+        dot.style.setProperty("--ember-delay", `${((i * 0.7) % 5.5).toFixed(2)}s`);
+        dot.style.setProperty("--ember-drift", `${((i % 2 === 0 ? 1 : -1) * (10 + (i % 4) * 8))}px`);
+        dot.style.setProperty("--ember-opacity", `${(0.42 + (i % 4) * 0.14).toFixed(2)}`);
+        emberFrag.appendChild(dot);
+      }
+      embersEl.appendChild(emberFrag);
+    }
+
+    function updateProgressHud() {
+      const total = CONFIG.stars.length;
+      const visited = state.visitedStars.size;
+      const headerEl = document.getElementById("sky-header");
+      const pillEl = document.getElementById("progress-pill");
+      const textEl = document.getElementById("progress-text");
+
+      if (visited > 0) {
+        headerEl.classList.add("has-progress");
+      }
+
+      if (total > 0 && visited >= total) {
+        pillEl.classList.add("is-complete");
+        textEl.textContent = `Все ${total} звёзд открыты ❤️`;
+      } else {
+        pillEl.classList.remove("is-complete");
+        textEl.textContent = `Открыто звёзд: ${visited} из ${total}`;
+      }
+    }
+
+    // ============================================================================
+    // MODAL HANDLERS & TRANSITIONS
+    // ============================================================================
+    function handlePhotoStarClick(star) {
+      if (state.isModalTransitioning || state.activeModal !== null) {
+        return;
+      }
+
+      TelegramService.hapticLight();
+
+      const isFirstVisit = !state.visitedStars.has(star.id);
+      if (isFirstVisit) {
+        state.visitedStars.add(star.id);
+        state.visitedOrder.push(star);
+
+        const btn = starButtonsById.get(star.id);
+        if (btn) {
+          btn.classList.add("is-visited");
+        }
+
+        updateProgressHud();
+
+        if (
+          !state.hasCelebratedCompletion &&
+          CONFIG.stars.length > 0 &&
+          state.visitedStars.size === CONFIG.stars.length
+        ) {
+          state.pendingCompletionCelebration = true;
+        }
+      }
+
+      openPhotoModal(star);
+    }
+
+    function openPhotoModal(star) {
+      const modal = document.getElementById("photo-modal");
+      const imgEl = document.getElementById("modal-img");
+      const metaEl = document.getElementById("modal-meta");
+      const captionEl = document.getElementById("modal-caption");
+
+      state.isModalTransitioning = true;
+      state.activeModal = "photo";
+
+      // Reset darkroom animations cleanly so re-opened stars replay the effect
+      modal.classList.remove("is-developing");
+      imgEl.src = state.loadedImages.get(star.id) || createStarFallbackSvg(star);
+      imgEl.alt = star.dateOrPlace ? star.dateOrPlace : `Звезда ${star.id}`;
+      metaEl.textContent = star.dateOrPlace || "";
+      captionEl.textContent = star.caption;
+
+      void modal.offsetWidth;
+      modal.classList.add("is-open", "is-developing");
+      modal.setAttribute("aria-hidden", "false");
+
+      TelegramService.showBackButton();
+
+      setTimeout(() => {
+        state.isModalTransitioning = false;
+      }, 350);
+    }
+
+    function closePhotoModal() {
+      if (state.isModalTransitioning || state.activeModal !== "photo") {
+        return;
+      }
+
+      const modal = document.getElementById("photo-modal");
+      state.isModalTransitioning = true;
+      TelegramService.hapticLight();
+
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      TelegramService.hideBackButton();
+
+      const shouldCelebrate = state.pendingCompletionCelebration;
+      state.pendingCompletionCelebration = false;
+
+      setTimeout(() => {
+        modal.classList.remove("is-developing");
+        state.activeModal = null;
+        state.isModalTransitioning = false;
+      }, 280);
+
+      if (shouldCelebrate && !state.hasCelebratedCompletion) {
+        setTimeout(() => {
+          triggerMilestoneCelebration();
+        }, 350);
+      }
+    }
+
+    function triggerMilestoneCelebration() {
+      if (state.hasCelebratedCompletion) return;
+      state.hasCelebratedCompletion = true;
+
+      TelegramService.hapticSuccess();
+      SkyCanvas.spawnHeartBurst(true);
+      updateProgressHud();
+
+      if (finalStarBtnEl) {
+        finalStarBtnEl.classList.add("is-unlocked");
+        finalStarBtnEl.setAttribute("aria-label", CONFIG.finalStar.labelAfterAllOpened);
+      }
+      if (finalStarLabelEl) {
+        finalStarLabelEl.textContent = CONFIG.finalStar.labelAfterAllOpened;
+      }
+    }
+
+    function handleFinalStarClick() {
+      if (state.isModalTransitioning || state.activeModal !== null) {
+        return;
+      }
+
+      TelegramService.hapticMedium();
+      openConfessionModal();
+    }
+
+    function openConfessionModal() {
+      const modal = document.getElementById("confession-modal");
+      const scrollEl = modal.querySelector(".confession-scroll");
+
+      state.isModalTransitioning = true;
+      state.activeModal = "confession";
+
+      if (scrollEl) {
+        scrollEl.scrollTop = 0;
+      }
+
+      modal.classList.remove("is-open");
+      void modal.offsetWidth;
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+
+      TelegramService.showBackButton();
+
+      setTimeout(() => {
+        state.isModalTransitioning = false;
+      }, 350);
+    }
+
+    function closeConfessionModal(withHeartFirework = false) {
+      if (state.isModalTransitioning || state.activeModal !== "confession") {
+        return;
+      }
+
+      const modal = document.getElementById("confession-modal");
+      state.isModalTransitioning = true;
+
+      if (withHeartFirework) {
+        TelegramService.hapticSuccess();
+      } else {
+        TelegramService.hapticLight();
+      }
+
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      TelegramService.hideBackButton();
+
+      setTimeout(() => {
+        state.activeModal = null;
+        state.isModalTransitioning = false;
+        if (withHeartFirework) {
+          SkyCanvas.spawnHeartBurst(true);
+        }
+      }, 280);
+    }
+
+    function closeActiveModal() {
+      if (state.activeModal === "photo") {
+        closePhotoModal();
+      } else if (state.activeModal === "confession") {
+        closeConfessionModal(false);
+      }
+    }
+
+    // ============================================================================
+    // BOOTSTRAP
+    // ============================================================================
+    document.addEventListener("DOMContentLoaded", () => {
+      TelegramService.init(
+        () => closeActiveModal(),
+        () => SkyCanvas.resize()
+      );
+
+      renderSkyStars();
+      renderConfessionContent();
+      SkyCanvas.init();
+
+      // Photo modal events
+      const photoModal = document.getElementById("photo-modal");
+      const photoCloseBtn = document.getElementById("photo-modal-close");
+
+      photoCloseBtn.addEventListener("click", () => closePhotoModal());
+      photoModal.addEventListener("click", (e) => {
+        if (e.target === photoModal) {
+          closePhotoModal();
+        }
+      });
+
+      // Confession modal events
+      const confessionCloseBtn = document.getElementById("confession-modal-close");
+      const heartBurstBtn = document.getElementById("heart-burst-btn");
+
+      confessionCloseBtn.addEventListener("click", () => closeConfessionModal(false));
+      heartBurstBtn.addEventListener("click", () => closeConfessionModal(true));
+
+      // Keyboard Escape support
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && state.activeModal !== null) {
+          closeActiveModal();
+        }
+      });
+
+      preloadAllPhotos();
+    });
+  </script>
+</body>
+</html>
